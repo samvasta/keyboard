@@ -114,6 +114,7 @@
     <ClInclude Include="fonts\font_Quattrocento-Bold.h" />
     <ClInclude Include="fonts\font_Quattrocento-Regular.h" />
     <ClInclude Include="fonts\font_QuattrocentoSans-Regular.h" />
+    <ClInclude Include="KeyboardLedIndicators.h" />
     <ClInclude Include="keyhandler.h" />
     <ClInclude Include="keymap.h" />
     <ClInclude Include="LayerIndicator.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="fonts\font_Quattrocento-Bold.c" />
     <ClCompile Include="fonts\font_Quattrocento-Regular.c" />
     <ClCompile Include="fonts\font_QuattrocentoSans-Regular.c" />
+    <ClCompile Include="KeyboardLedIndicators.cpp" />
     <ClCompile Include="keyhandler.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>

@@ -6,8 +6,8 @@
 #include "ILI9341_t3.h"
 #include "fonts/font_Quattrocento-Bold.h"
 
-#define INDICATOR_WIDTH 56
-#define INDICATOR_HEIGHT 46
+#define LAYER_INDICATOR_WIDTH 56
+#define LAYER_INDICATOR_HEIGHT 46
 
 void setLayerIndicator(uint8_t activeLayer);
 void drawLayerInfo(int16_t x, int16_t y);

@@ -84,6 +84,9 @@
     <ClInclude Include="LayerIndicator.h">
       <Filter>Header Files\lcd</Filter>
     </ClInclude>
+    <ClInclude Include="KeyboardLedIndicators.h">
+      <Filter>Header Files\lcd</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lcd.cpp">
@@ -123,6 +126,9 @@
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="LayerIndicator.cpp">
+      <Filter>Source Files\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyboardLedIndicators.cpp">
       <Filter>Source Files\lcd</Filter>
     </ClCompile>
   </ItemGroup>

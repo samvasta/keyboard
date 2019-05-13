@@ -14,6 +14,7 @@
 matrix_row_t matrix_prev[MATRIX_ROWS];
 uint8_t led_status = 0;
 
+volatile uint8_t prevLayer;
 volatile uint8_t layer;
 keyevent_t pressedState[MATRIX_ROWS * MATRIX_COLS];
 volatile uint16_t modifiers = 0;
@@ -66,6 +67,8 @@ void processMatrixState(matrix_row_t * matrix) {
 			}
 		}
 	}
+
+	prevLayer = layer;
 	Keyboard.send_now();
 }
 
@@ -138,6 +141,7 @@ void preProcessKey(keyevent_t e) {
 
 void processKey(keyevent_t e) {
 	//Resolve the layer, then resolve the modifiers & keys
+	uint16_t oldCode = getKeyCode(e.key.row, e.key.col, prevLayer);
 	uint16_t code = getKeyCode(e.key.row, e.key.col, layer);
 	if (code == KEY_NO) {
 		return;
@@ -149,7 +153,7 @@ void processKey(keyevent_t e) {
 			Keyboard.press(code);
 		}
 		else {
-			Keyboard.release(code);
+			Keyboard.release(oldCode);
 		}
 	}
 	else if (code >= 0xE000) {
@@ -172,7 +176,7 @@ void processKey(keyevent_t e) {
 			else {
 				modifiers = 0;
 				Keyboard.set_modifier(modifiers);
-				Keyboard.release((code & 0xff) | 0xf000);
+				Keyboard.release((oldCode & 0xff) | 0xf000);
 			}
 		}
 		else if (code > KEY_CODE_FN_START) {

@@ -3,7 +3,7 @@
 // 
 
 #include "lcd.h"
-
+#include "Keyboard.h"
 #include "SPI.h"
 #include "Wire.h"
 #include "ILI9341_t3.h"
@@ -14,6 +14,7 @@
 #include "persist.h"
 #include "TimeUtil.h"
 #include "LayerIndicator.h"
+#include "KeyboardLedIndicators.h"
 
 
 #define TFT_CS 10
@@ -39,9 +40,11 @@ volatile bool themeMode;
 
 volatile float brightness;
 float old_brightness;
+volatile uint8_t prevLedStatus = 0xff;
 
 bool isRefreshing;
 bool needsLayerRedraw;
+bool needsLedStatusRedraw;
 
 ILI9341_t3 *getTft() {
 	return &tft;
@@ -79,13 +82,14 @@ void drawStartScreen() {
 	tft.fillScreen(bg);
 
 	displayWelcome();
+	needsLedStatusRedraw = true;
+	needsLayerRedraw = true;
 
 	isRefreshing = false;
 }
 
 int16_t getCoord(float x);
 
-uint32_t i = 0;
 void update_lcd(uint64_t delta) {
 	analogWrite(8, (uint8_t)brightness);
 
@@ -108,9 +112,18 @@ void update_lcd(uint64_t delta) {
 	tft.print(getCoord(brightness));
 	old_brightness = brightness;
 
-	drawLayerInfo(tft.width()-INDICATOR_WIDTH+1, -1);
+	if (needsLayerRedraw) {
+		drawLayerInfo(tft.width()-LAYER_INDICATOR_WIDTH+1, -1);
+	}
 
-	tft.fillRect(8, 8, 90, 20, bg);
+	needsLedStatusRedraw |= (keyboard_leds != prevLedStatus);
+	if (needsLedStatusRedraw) {
+		drawLedIndicators(tft.width() - LED_INDICATOR_WIDTH - LAYER_INDICATOR_WIDTH + 2, -1, keyboard_leds);
+		prevLedStatus = keyboard_leds;
+	}
+	
+
+	tft.fillRect(8, 8, 120, 20, bg);
 	tft.setFont(QuattrocentoSans_14);
 	tft.setCursor(8, 8);
 	tft.print(getTimeStr());
