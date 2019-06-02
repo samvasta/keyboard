@@ -13,6 +13,7 @@
 #include "EEPROM.h"
 #include "persist.h"
 #include "TimeUtil.h"
+#include "TimeLib.h"
 #include "LayerIndicator.h"
 #include "KeyboardLedIndicators.h"
 
@@ -24,7 +25,15 @@
 #define TFT_CLK 13
 #define TFT_RST 8
 
-#define WELCOME_MESSAGE "hello sam."
+#define CLOCK_UPDATE_FREQ_MS 1000 * 10	//every 10 sec
+
+#define NUM_WELCOME_MESSAGES 2
+static const String WELCOME_MESSAGES[4][2] = {
+	{"good morning", "hello sam"},
+	{"good afternoon", "wecome back"},
+	{"good evening", "keep it up!"},
+	{"go to bed", "it's late"}
+};
 
 static ILI9341_t3 tft = ILI9341_t3(TFT_CS, TFT_DC);
 
@@ -45,12 +54,14 @@ volatile uint8_t prevLedStatus = 0xff;
 bool isRefreshing;
 bool needsLayerRedraw;
 bool needsLedStatusRedraw;
+uint64_t lastClockUpdate;
 
 ILI9341_t3 *getTft() {
 	return &tft;
 }
 
 void setup_lcd() {
+	lastClockUpdate = 0;
 	needsLayerRedraw = true;
 
 	isRefreshing = false;
@@ -70,11 +81,26 @@ void setup_lcd() {
 void displayWelcome() {
 	tft.setFont(Quattrocento_24);
 	tft.setTextColor(fg);
-	drawTextCentered(WELCOME_MESSAGE, (tft.height() - 20) / 2);
+
+	String msg;
+	int h = hour();
+	if (h < 6 || h > 20) {
+		msg = WELCOME_MESSAGES[3][random(0, 2)];
+	}
+	else if (h < 11) {
+		msg = WELCOME_MESSAGES[0][random(0, 2)];
+	}
+	else if (h < 16) {
+		msg = WELCOME_MESSAGES[1][random(0, 2)];
+	}
+	else {
+		msg = WELCOME_MESSAGES[2][random(0, 2)];
+	}
 	
-	tft.drawFastHLine(70, (tft.height() / 2) + 16, 173, accentMid);
-	tft.drawFastHLine(69, (tft.height() / 2) + 17, 174, accentMid);
-	tft.drawFastHLine(68, (tft.height() / 2) + 18, 176, accentMid);
+	char str[msg.length() + 1];
+	strcpy(str, msg.c_str());
+
+	drawTextCentered(str, (tft.height() - 20) / 2);
 }
 
 void drawStartScreen() {
@@ -84,6 +110,7 @@ void drawStartScreen() {
 	displayWelcome();
 	needsLedStatusRedraw = true;
 	needsLayerRedraw = true;
+	lastClockUpdate = 0;
 
 	isRefreshing = false;
 }
@@ -98,35 +125,29 @@ void update_lcd(uint64_t delta) {
 		return;
 	}
 
-	int16_t oldB = getCoord(old_brightness);
-	int16_t newB = getCoord(brightness);
-
-	tft.fillCircle(30+old_brightness, 200 -100 * (oldB / 255.0f), 3, accentDark);
-	tft.fillCircle(30+brightness, 200 - 100*(newB/255.0f), 3, accentLight);
-
-	tft.setFont(QuattrocentoSans_10);
-	tft.setCursor(40, 60);
-	tft.fillRect(40, 60, 50, 22, bg);
-	tft.print(brightness);
-	tft.setCursor(40, 72);
-	tft.print(getCoord(brightness));
 	old_brightness = brightness;
 
 	if (needsLayerRedraw) {
 		drawLayerInfo(tft.width()-LAYER_INDICATOR_WIDTH+1, -1);
+		needsLayerRedraw = false;
 	}
 
 	needsLedStatusRedraw |= (keyboard_leds != prevLedStatus);
 	if (needsLedStatusRedraw) {
 		drawLedIndicators(tft.width() - LED_INDICATOR_WIDTH - LAYER_INDICATOR_WIDTH + 2, -1, keyboard_leds);
 		prevLedStatus = keyboard_leds;
+		needsLedStatusRedraw = false;
 	}
 	
 
-	tft.fillRect(8, 8, 120, 20, bg);
-	tft.setFont(QuattrocentoSans_14);
-	tft.setCursor(8, 8);
-	tft.print(getTimeStr());
+	if (millis() - lastClockUpdate > CLOCK_UPDATE_FREQ_MS) {
+		tft.fillRect(8, 8, 120, 20, bg);
+		tft.setFont(QuattrocentoSans_14);
+		tft.setCursor(8, 8);
+		tft.print(getTimeStr());
+
+		lastClockUpdate = millis();
+	}
 }
 
 
@@ -168,19 +189,19 @@ void saveLcdSettings() {
 }
 
 void on_lcd_a_pressed() {
-
+	saveLcdSettings();
 }
 
 void on_lcd_b_pressed() {
-
+	setDarkMode(!isDarkMode());
 }
 
 void on_lcd_c_pressed() {
-
+	prevAccent();
 }
 
 void on_lcd_d_pressed() {
-
+	nextAccent();
 }
 
 void on_lcd_a_released() {

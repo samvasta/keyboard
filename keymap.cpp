@@ -41,7 +41,7 @@ const static uint16_t keymaps[][MATRIX_COLS][MATRIX_ROWS] = {	//Add 1 to MATRIX_
 	├────────┼────────┼────────┼────────┼────────┼────────┤  ├────────┤├────────┤        ┌────────┐┌────────┐  ├────────┼────────┼────────┼────────┼────────┼────────┤
 	│  TAB   │    A   │   S    │   D    │   F    │   G    │  │ LCD_A  ││ LCD_B  │        │ LCD_C  ││ LCD_D  │  │    H   │   J    │   K    │    L   │   ;    │ ENTER  │
 	├────────┼────────┼────────┼────────┼────────┼────────┤  ├────────┤├────────┤        ├────────┤├────────┤  ├────────┼────────┼────────┼────────┼────────┼────────┤
-	│  SHIFT │    Z   │   X    │   C    │   V    │   B    │  │ TOG 1  ││ TOG 4  │        │ TOG 8  ││ TOG 2  │  │    N   │   M    │   , <  │  . >   │   / ?  │  \ |   │
+	│  SHIFT │    Z   │   X    │   C    │   V    │   B    │  │ TOG 1  ││ TOG 4  │        │ TOG 8  ││ TOG 2  │  │    N   │   M    │   , <  │  . >   │   / ?  │ R SHFT │
 	├────────┼────────┼────────┼────────┼────────┼────────┤  ├────────┤├────────┤        ├────────┤├────────┤  ├────────┼────────┼────────┼────────┼────────┼────────┤
 	│  CTL   │  GUI   │  ALT   │ REC. 1 │  SPACE │  SPACE │  │  FN 1  ││  FN 4  │        │  FN 8  ││  FN 2  │  │ SPACE  │ SPACE  │ REC. 2 │  ALT   │  GUI   │  CTL   │
 	└────────┴────────┴────────┴────────┴────────┴────────┘  └────────┘└────────┘        └────────┘└────────┘  └────────┴────────┴────────┴────────┴────────┴────────┘
@@ -52,7 +52,7 @@ const static uint16_t keymaps[][MATRIX_COLS][MATRIX_ROWS] = {	//Add 1 to MATRIX_
 	[BASE_LAYER] = KEYMAP(
 		KEY_ESC,   KEY_Q,    KEY_W,    KEY_E,     KEY_R,   KEY_T,                                      KEY_Y,   KEY_U,   KEY_I,     KEY_O,    KEY_P,      KEY_BSPC,
 		KEY_TAB,   KEY_A,    KEY_S,    KEY_D,     KEY_F,   KEY_G,                                      KEY_H,   KEY_J,   KEY_K,     KEY_L,    KEY_SCLN,   KEY_ENTER,
-		KEY_LSFT,  KEY_Z,    KEY_X,    KEY_C,     KEY_V,   KEY_B,   TO(1),  TO(4),    TO(8),  TO(2),   KEY_N,   KEY_M,   KEY_COMMA, KEY_DOT,  KEY_SLASH,  KEY_BSLASH,
+		KEY_LSFT,  KEY_Z,    KEY_X,    KEY_C,     KEY_V,   KEY_B,   TO(1),  TO(4),    TO(8),  TO(2),   KEY_N,   KEY_M,   KEY_COMMA, KEY_DOT,  KEY_SLASH,  KEY_RSFT,
 		KEY_LCTL,  KEY_LGUI, KEY_LALT, REC_DYN1, KEY_SPC, KEY_SPC,  FN(1),  FN(4),    FN(8),  FN(2),   KEY_SPC, KEY_SPC, REC_DYN2,  KEY_RALT, KEY_RGUI,   KEY_RCTL
 	),
 
@@ -86,9 +86,9 @@ const static uint16_t keymaps[][MATRIX_COLS][MATRIX_ROWS] = {	//Add 1 to MATRIX_
 	┌────────┬────────┬────────┬────────┬────────┬────────┐  ┌────────┐       ┌────────┐  ┌────────┬────────┬────────┬────────┬────────┬────────┐
 	│  ` ~   │    !   │    @   │   #    │   $    │   %    │  │        │       │        │  │   ^    │   &    │   *    │   (    │    )   │        │
 	├────────┼────────┼────────┼────────┼────────┼────────┤  ├────────┤       ├────────┤  ├────────┼────────┼────────┼────────┼────────┼────────┤
-	│        │ XXXXXX │ XXXXXX │   _    │   +    │   {    │  │        │       │        │  │   }    │   "    │   <    │   >    │   ?    │        │
+	│        │ XXXXXX │    |   │   _    │   +    │   {    │  │        │       │        │  │   }    │   "    │   <    │   >    │   ?    │        │
 	├────────┼────────┼────────┼────────┼────────┼────────┤  ├────────┤       ├────────┤  ├────────┼────────┼────────┼────────┼────────┼────────┤
-	│        │ XXXXXX │ XXXXXX │   -    │   =    │   [    │  │        │       │        │  │   ]    │   '    │   ,    │   .    │   /    │        │
+	│        │ XXXXXX │    \   │   -    │   =    │   [    │  │        │       │        │  │   ]    │   '    │   ,    │   .    │   /    │        │
 	├────────┼────────┼────────┼────────┼────────┼────────┤  ├────────┤       ├────────┤  ├────────┼────────┼────────┼────────┼────────┼────────┤
 	│        │        │        │        │        │        │  │        │       │        │  │        │        │        │        │        │        │
 	└────────┴────────┴────────┴────────┴────────┴────────┘  └────────┘       └────────┘  └────────┴────────┴────────┴────────┴────────┴────────┘
@@ -97,9 +97,9 @@ const static uint16_t keymaps[][MATRIX_COLS][MATRIX_ROWS] = {	//Add 1 to MATRIX_
 
 	*/
 	[LAYER_2] = KEYMAP(
-		KEY_GRV, KEY_EXLM, KEY_AT , KEY_HASH,	 KEY_DLR,    KEY_PERC,                                            KEY_CIRC   , KEY_AMPR,    KEY_ASTR,    KEY_LPRN,   KEY_RPRN,     JMP(0),
-		______,  KEY_NO  , KEY_NO , S(KEY_UNDS), S(KEY_EQL), S(KEY_LBRC) ,                                        S(KEY_RBRC), S(KEY_QUOT), S(KEY_COMM), S(KEY_DOT), S(KEY_SLASH), ______,
-		______,  KEY_NO  , KEY_NO , KEY_UNDS,    KEY_EQL,    KEY_LBRC ,    ______, ______,     ______,  ______,   KEY_RBRC   , KEY_QUOT ,   KEY_COMM,    KEY_DOT,    KEY_SLASH,    ______,
+		KEY_GRV, KEY_EXLM, KEY_AT ,        KEY_HASH,	 KEY_DLR,    KEY_PERC,                                            KEY_CIRC   , KEY_AMPR,    KEY_ASTR,    KEY_LPRN,   KEY_RPRN,     JMP(0),
+		______,  KEY_NO  , S(KEY_BSLASH) , S(KEY_UNDS), S(KEY_EQL), S(KEY_LBRC) ,                                        S(KEY_RBRC), S(KEY_QUOT), S(KEY_COMM), S(KEY_DOT), S(KEY_SLASH), ______,
+		______,  KEY_NO  , KEY_BSLASH,     KEY_UNDS,    KEY_EQL,    KEY_LBRC ,    ______, ______,     ______,  ______,   KEY_RBRC   , KEY_QUOT ,   KEY_COMM,    KEY_DOT,    KEY_SLASH,    ______,
 		______,  ______  ,  ______, ______ ,     ______,     ______ ,      ______, ______,     ______,  ______,   ______     , ______ ,     ______ ,     ______ ,    ______ ,      ______
 	),
 

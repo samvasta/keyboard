@@ -7,6 +7,7 @@
 #include "common.h"
 #include "usb_serial.h"
 #include "lcd.h"
+#include "mousehandler.h"
 
 int8_t last_encoder_states[NUMBER_OF_ENCODERS] = { 0 };
 int8_t encoder_values[NUMBER_OF_ENCODERS] = { 0 };
@@ -115,30 +116,30 @@ void onEncoder(uint8_t encNum, bool clockwise) {
 	if (clockwise) {
 		++encValues[encNum];
 		if (encNum == 0) {
-			inc_brightness();
+			scrollDown();
 		}
 		else if (encNum == 1) {
-			nextAccent();
+			scrollRight();
 		}
 	}
 	else {
 		--encValues[encNum];
 		if (encNum == 0) {
-			dec_brightness();
+			scrollUp();
 		}
 		else if (encNum == 1) {
-			prevAccent();
+			scrollLeft();
 		}
 	}
 }
 
 void on_encoder_l_pressed() {
-	saveLcdSettings();
-	Serial.println("Saved to EEPROM");
+	toggleScrollSpeedV();
+	Serial.println("L Pressed");
 }
 
 void on_encoder_r_pressed() {
-	setDarkMode(!isDarkMode());
+	toggleScrollSpeedH();
 	Serial.println("R Pressed");
 }
 

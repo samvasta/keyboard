@@ -87,6 +87,9 @@
     <ClInclude Include="KeyboardLedIndicators.h">
       <Filter>Header Files\lcd</Filter>
     </ClInclude>
+    <ClInclude Include="mousehandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lcd.cpp">
@@ -130,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="KeyboardLedIndicators.cpp">
       <Filter>Source Files\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="mousehandler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

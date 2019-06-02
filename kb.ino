@@ -8,6 +8,7 @@
 
 // Define User Types below here or use a .h file
 //
+#include "mousehandler.h"
 #include "KeyboardLedIndicators.h"
 #include "pointer.h"
 #include "lcd.h"

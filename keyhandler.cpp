@@ -36,7 +36,7 @@ void processMatrixState(matrix_row_t * matrix) {
 
 	matrix_row_t matrix_row;
 	matrix_row_t matrix_change[MATRIX_ROWS];
-	uint32_t curTime = millis();
+
 	for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
 		matrix_row = matrix[r];
 		matrix_change[r] = matrix_prev[r] ^ matrix_row;
@@ -74,6 +74,7 @@ void processMatrixState(matrix_row_t * matrix) {
 
 void preProcessKey(keyevent_t e) {
 	//Resolve the layer, then resolve the modifiers & keys
+	uint16_t oldCode = getKeyCode(e.key.row, e.key.col, prevLayer);
 	uint16_t code = getKeyCode(e.key.row, e.key.col, layer);
 	if (code == KEY_NO) {
 		return;
@@ -86,10 +87,10 @@ void preProcessKey(keyevent_t e) {
 	else if (code >= 0xE000) {
 		//Modifier
 		if (e.pressed) {
-			modifiers |= code & 0x00ff;
+			press(code);
 		}
 		else {
-			modifiers &= ~(code & 0x00ff);
+			release(oldCode);
 		}
 	}
 	else if (code >= 0xE200 && e.pressed) {
@@ -111,11 +112,13 @@ void preProcessKey(keyevent_t e) {
 			}
 			else if(!e.pressed) {
 				if (isToggle) {
-					uint8_t toggleCode = (code & 0x0f) << 4;
+					uint8_t toggleCode = (oldCode & 0x0f) << 4;
 					layer ^= toggleCode;
 				}
 				else {
-					layer &= ~(code & 0xff);
+					uint8_t oldLayer = layer;
+					layer &= ~(oldCode & 0xff);
+					unpressAllOnLayer(layer, oldLayer);
 				}
 			}
 			onLayerChanged(layer);
@@ -143,54 +146,76 @@ void processKey(keyevent_t e) {
 	//Resolve the layer, then resolve the modifiers & keys
 	uint16_t oldCode = getKeyCode(e.key.row, e.key.col, prevLayer);
 	uint16_t code = getKeyCode(e.key.row, e.key.col, layer);
-	if (code == KEY_NO) {
+	if (code == KEY_NO && oldCode == KEY_NO) {
 		return;
 	}
 
-	if (code >= 0xF000) {
+	if (e.pressed) {
+		press(code);
+	}
+	else {
+		release(oldCode);
+	}
+}
+
+void press(uint16_t keyCode) {
+	pressRelease(keyCode, true);
+}
+void release(uint16_t keyCode) {
+	pressRelease(keyCode, false);
+}
+
+void pressRelease(uint16_t keyCode, bool isPressed) {
+	if (keyCode >= 0xF000) {
 		//standard code
-		if (e.pressed) {
-			Keyboard.press(code);
+		if (isPressed) {
+			Keyboard.press(keyCode);
 		}
 		else {
-			Keyboard.release(oldCode);
+			Keyboard.release(keyCode);
 		}
 	}
-	else if (code >= 0xE000) {
-		//Modifiers handled in pre-process step
+	else if (keyCode >= 0xE000) {
+		//Modifiers
+		if (isPressed) {
+			modifiers |= keyCode & 0x00ff;
+		}
+		else {
+			modifiers &= ~(keyCode & 0x00ff);
+		}
 	}
-	else if (code >= 0xE200 && e.pressed) {
+	else if (keyCode >= 0xE200 && isPressed) {
 		//System code
 	}
-	else if (code >= 0xE400 && e.pressed) {
+	else if (keyCode >= 0xE400 && isPressed) {
 		//Media code
 	}
-	else if (code >= KEY_CODE_META_START) {
-		if (code >= KEY_CODE_SHIFTED_CHAR) {
-			if (e.pressed) {
+	else if (keyCode >= KEY_CODE_META_START) {
+		if (keyCode >= KEY_CODE_SHIFTED_CHAR) {
+			if (isPressed) {
 				modifiers = 0xFF & MODIFIERKEY_LEFT_SHIFT;
 				Keyboard.set_modifier(modifiers);
-				Keyboard.press((code & 0xff) | 0xf000);
-				Serial.printf("pressing shifted key %04x\n", code & 0xf0ff);
+				Keyboard.press((keyCode & 0xff) | 0xf000);
+				Serial.printf("pressing shifted key %04x\n", keyCode & 0xf0ff);
 			}
 			else {
 				modifiers = 0;
 				Keyboard.set_modifier(modifiers);
-				Keyboard.release((oldCode & 0xff) | 0xf000);
+				Keyboard.release((keyCode & 0xff) | 0xf000);
 			}
 		}
-		else if (code > KEY_CODE_FN_START) {
-			//Layers handled in pre-process step
+		else if (keyCode > KEY_CODE_FN_START) {
+			//Skip FN toggle. It's handled in the Preprocess step
 		}
-		else if (code >= KEY_CODE_DYN_MACRO_START) {
+		else if (keyCode >= KEY_CODE_DYN_MACRO_START) {
 			//TODO
 		}
-		else if (code >= KEY_CODE_UNICODE_START) {
+		else if (keyCode >= KEY_CODE_UNICODE_START) {
 			//TODO
 		}
-		else if (code >= KEY_CODE_MACROS_START && e.pressed) {
+		else if (keyCode >= KEY_CODE_MACROS_START && isPressed) {
 			//send macros immediately
-			switch (code) {
+			switch (keyCode) {
 			case KEY_COPY:
 				//sendKey((KEY_C & 0xff), (0xFF & MODIFIERKEY_LEFT_CTRL));
 				break;
@@ -203,8 +228,8 @@ void processKey(keyevent_t e) {
 			}
 		}
 		else {
-			if (e.pressed) {
-				switch (code) {
+			if (isPressed) {
+				switch (keyCode) {
 				case LCD_A: on_lcd_a_pressed(); return;
 				case LCD_B: on_lcd_b_pressed(); return;
 				case LCD_C: on_lcd_c_pressed(); return;
@@ -214,13 +239,34 @@ void processKey(keyevent_t e) {
 				}
 			}
 			else {
-				switch (code) {
+				switch (keyCode) {
 				case LCD_A: on_lcd_a_released(); return;
 				case LCD_B: on_lcd_b_released(); return;
 				case LCD_C: on_lcd_c_released(); return;
 				case LCD_D: on_lcd_d_released(); return;
 				case ENC_L: on_encoder_l_released(); return;
 				case ENC_R: on_encoder_r_released(); return;
+				}
+			}
+		}
+	}
+}
+
+void unpressAllOnLayer(uint8_t newLayer, uint8_t oldLayer) {
+	if (newLayer == oldLayer) {
+		return;
+	}
+
+	for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
+		for (uint8_t c = 0; c < MATRIX_COLS; c++) {
+			if (pressedState[r * MATRIX_COLS + c].pressed) {
+				uint16_t oldCode = getKeyCode(r, c, oldLayer);
+				uint16_t code = getKeyCode(r, c, newLayer);
+				Serial.printf("checking %d (oldL=%d, newL=%d)\n", oldCode, oldLayer, newLayer);
+				
+				if (oldCode != code) {
+					Serial.printf("releasing %d (oldL=%d, newL=%d)\n", oldCode, oldLayer, newLayer);
+					release(oldCode);
 				}
 			}
 		}

@@ -17,7 +17,6 @@ void ensureRtcInitialized() {
 		}
 		else {
 			Serial.println("RTC has set the system time");
-			setTime(13, 23, 45, 30, 4, 2019);
 			Serial.println(getTimeStr());
 		}
 	}
@@ -25,7 +24,7 @@ void ensureRtcInitialized() {
 
 static char currentTimeStr[15];
 char* getTimeStr() {
-	sprintf(currentTimeStr, "%s, %d:%d %s", dayShortStr(weekday()), hourFormat12(), minute(), isAM() ? "a" : "p");
+	sprintf(currentTimeStr, "%s, %d:%02d %s", dayShortStr(weekday()), hourFormat12(), minute(), isAM() ? "a" : "p");
 	return currentTimeStr;
 }
 

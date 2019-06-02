@@ -37,6 +37,10 @@ typedef struct {
 
 void preProcessKey(keyevent_t e);
 void processKey(keyevent_t e);
+void press(uint16_t keyCode);
+void release(uint16_t keyCode);
+void pressRelease(uint16_t keyCode, bool isPressed);
+void unpressAllOnLayer(uint8_t newLayer, uint8_t oldLayer);
 uint16_t getKeyCode(uint8_t row, uint8_t col, uint8_t layer);
 
 uint8_t getLayerStatus();
